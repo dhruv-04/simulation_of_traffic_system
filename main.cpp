@@ -31,8 +31,7 @@ class car {
 
     //function to change the status of the car
     int changeCarStatus() {
-        if(carStatus) carStatus = 0;
-        else carStatus = 1;
+        carStatus = !carStatus;
         return carStatus;
     }
 
