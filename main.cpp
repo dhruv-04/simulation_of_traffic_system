@@ -8,9 +8,9 @@ const int lengthOfRoad = 50;
 vector<char> road(lengthOfRoad, '.');
 
 class car {
-    int positionOfCar = -1;
+    int positionOfCar = 0;
     int carID; //useless
-    int carStatus = 0; //0 for stop, 1 for stop
+    int carStatus = 1; //0 for stop, 1 for move
 
     public:
     //function to get car status
@@ -36,14 +36,17 @@ class car {
         return carStatus;
     }
 
+    //function to get the position of the car
+    int getPositionOfCar() {
+        return positionOfCar;
+    }
 };
 
 class trafficLight {
     int status = 0; //0 for green, 1 for red
     public:
     void toggle() {
-        if(status) status = 0;
-        else status = 1;
+        status = !status;
     }
 
     string getStatus() {
@@ -51,20 +54,38 @@ class trafficLight {
     }
 };
 
-void displayRoad(car &car) {
-    for(int i = 0; i < lengthOfRoad; i++) {
-        
+
+void trafficLogic(trafficLight &trafficLight, car &car) {
+    if(trafficLight.getStatus() == "GREEN" && car.getCarStatus()) car.moveCar();
+    else if(trafficLight.getStatus() == "GREEN" && !car.getCarStatus()) {
+        car.changeCarStatus();
+        car.moveCar();
     }
+    else if(trafficLight.getStatus() == "RED" && car.getCarStatus()) car.changeCarStatus();
+}
+
+void displayRoad(car &car, trafficLight &trafficLight) {
+    cout << "|";
+    for(int i = 0; i < lengthOfRoad; i++) {
+        if(car.getPositionOfCar() == i) cout << "C";
+        else cout << ".";
+    }
+    cout << "|" << trafficLight.getStatus();
+    return;
 }
 
 int main() {
     trafficLight signalOne;
     car carOne;
-    cout << "|";
-    // for(int i = 0; i < lengthOfRoad; i++) {
-    //     if(signalOne.getStatus() == "GREEN" && carOne.moveCar())
-    // }
-    cout << "|";
-    cout << " " << signalOne.getStatus();
+    int count = 0;
+
+    for(int i = 0; i < 100; i++) {
+        displayRoad(carOne, signalOne);
+        cout << "\n";
+        if(count % 4 == 0) signalOne.toggle();
+        trafficLogic(signalOne, carOne);
+        this_thread::sleep_for(chrono::milliseconds(300));
+        count++;
+    }
     return 0;
 }
