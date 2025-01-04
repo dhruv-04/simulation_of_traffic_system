@@ -2,6 +2,8 @@
 #include<vector>
 #include<thread>
 #include<chrono>
+#include<atomic>
+#include<csignal>
 using namespace std;
 
 const int lengthOfRoad = 50;
@@ -54,6 +56,7 @@ class trafficLight {
 };
 
 
+//logic for traffic movement
 void trafficLogic(trafficLight &trafficLight, car &car) {
     if(trafficLight.getStatus() == "GREEN" && car.getCarStatus()) car.moveCar();
     else if(trafficLight.getStatus() == "GREEN" && !car.getCarStatus()) {
@@ -63,6 +66,7 @@ void trafficLogic(trafficLight &trafficLight, car &car) {
     else if(trafficLight.getStatus() == "RED" && car.getCarStatus()) car.changeCarStatus();
 }
 
+//function to display the road
 void displayRoad(car &car, trafficLight &trafficLight) {
     cout << "|";
     for(int i = 0; i < lengthOfRoad; i++) {
@@ -73,18 +77,39 @@ void displayRoad(car &car, trafficLight &trafficLight) {
     return;
 }
 
+
+//logic to toggle traffic signal
+void toggleTrafficLight(trafficLight &signal, atomic<bool> &running) {
+    while(running) {
+        this_thread::sleep_for(chrono::milliseconds(500));
+        signal.toggle();
+    }
+}
+
+atomic<bool> running(true);
+
+void signalHandler(int signum) { 
+    running = false;
+}
+
 int main() {
+    //register signal handler for SIGINT (Ctrl + C)
+    signal(SIGINT, signalHandler);
+
     trafficLight signalOne;
     car carOne;
     int count = 0;
 
-    for(int i = 0; i < 100; i++) {
+    thread signalThread(toggleTrafficLight, ref(signalOne), ref(running));
+
+    while(running) {
         displayRoad(carOne, signalOne);
         cout << "\n";
-        if(count % 4 == 0) signalOne.toggle();
         trafficLogic(signalOne, carOne);
         this_thread::sleep_for(chrono::milliseconds(300));
-        count++;
     }
+
+    signalThread.join();
+
     return 0;
 }
