@@ -17,6 +17,9 @@ class Simulation {
     Simulation();
     void run();
     static void signalHandler(int signum);
+    void displayRoad(road& r, car& c, trafficLight& t);
+    void trafficLogic(car& c, trafficLight& t);
+    void toggleTrafficLight(trafficLight &t, std::atomic<bool>& running);
 };
 
 #endif
