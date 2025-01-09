@@ -36,7 +36,7 @@ void Simulation::displayRoad(road &r, car &c, trafficLight &t) {
 
 void Simulation::toggleTrafficLight(trafficLight& t, atomic<bool>& running) {
     while(running) {
-        this_thread::sleep_for(chrono::milliseconds(300));
+        this_thread::sleep_for(chrono::milliseconds(500));
         t.toggle();
     }
 }
